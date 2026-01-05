@@ -5,12 +5,18 @@ const TitleBar = () => {
     const [appWindow, setAppWindow] = useState(null);
 
     useEffect(() => {
-        try {
-            setAppWindow(getCurrentWindow());
-        } catch (e) {
-            console.warn("Tauri window features not available");
+        // Check if running in Tauri environment
+        if (window.__TAURI_INTERNALS__) {
+            try {
+                setAppWindow(getCurrentWindow());
+            } catch (e) {
+                console.warn("Tauri window features not available");
+            }
         }
     }, []);
+
+    // If not running in Tauri (appWindow is null), do not render the custom title bar
+    if (!appWindow) return null;
 
     const minimize = () => appWindow?.minimize();
     const toggleMaximize = () => appWindow?.toggleMaximize();
