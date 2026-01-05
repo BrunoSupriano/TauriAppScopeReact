@@ -1,0 +1,6 @@
+@import "tailwindcss";
+@config "../tailwind.config.js";
+
+@layer components {
+    /* We will add custom component classes here later */
+}
