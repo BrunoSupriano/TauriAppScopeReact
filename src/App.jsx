@@ -1,11 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TitleBar from './components/TitleBar';
 import Button from './components/Button';
 import Popup from './components/Popup';
 import colors from './theme/colors';
+import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  useEffect(() => {
+    // Check if running in Tauri environment
+    if (window.__TAURI_INTERNALS__) {
+      const initTauri = async () => {
+        // Add a delay to show the splash screen
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        try {
+          // Get the splash screen window
+          const splash = await WebviewWindow.getByLabel('splashscreen');
+          if (splash) {
+            await splash.close();
+          }
+
+          // Show the main window
+          const main = WebviewWindow.getCurrent();
+          await main.show();
+          await main.setFocus();
+        } catch (error) {
+          console.error('Failed to initialize Tauri window:', error);
+        }
+      };
+
+      initTauri();
+    }
+  }, []);
 
   return (
     <div className="relative w-full h-screen overflow-hidden flex flex-col justify-center items-center bg-transparent rounded-lg text-white font-['Outfit']">

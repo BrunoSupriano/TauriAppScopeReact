@@ -14,11 +14,23 @@
     "windows": [
       {
         "title": "Glassmorphism App",
+        "label": "main",
         "width": 800,
         "height": 600,
         "decorations": false,
         "transparent": true,
-        "shadow": false
+        "shadow": false,
+        "visible": false
+      },
+      {
+        "width": 400,
+        "height": 200,
+        "decorations": false,
+        "url": "splashscreen.html",
+        "label": "splashscreen",
+        "transparent": true,
+        "shadow": false,
+        "center": true
       }
     ],
     "security": {

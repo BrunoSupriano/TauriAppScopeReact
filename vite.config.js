@@ -9,4 +9,12 @@ export default defineConfig({
     strictPort: true,
   },
   envPrefix: ['VITE_', 'TAURI_'],
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        splashscreen: 'splashscreen.html',
+      },
+    },
+  },
 });
