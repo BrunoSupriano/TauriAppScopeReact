@@ -11,35 +11,36 @@ pub fn run() {
         .setup(|app| {
             use tauri::Manager;
 
-            let window = app.get_webview_window("main").unwrap();
+            // Try to get the main window, but don't panic if it doesn't exist yet
+            if let Some(window) = app.get_webview_window("main") {
+                #[cfg(target_os = "windows")]
+                {
+                    use window_vibrancy::apply_acrylic;
+                    use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_ROUND};
+                    use windows::Win32::Foundation::HWND;
 
-            #[cfg(target_os = "windows")]
-            {
-                use window_vibrancy::apply_acrylic;
-                use windows::Win32::Graphics::Dwm::{DwmSetWindowAttribute, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_ROUND};
-                use windows::Win32::Foundation::HWND;
+                    let _ = apply_acrylic(&window, Some((18, 18, 18, 125)));
+                    
+                    // Hack: force allow rounding
+                    if let Ok(hwnd) = window.hwnd() {
+                        let hwnd = HWND(hwnd.0 as _);
 
-                let _ = apply_acrylic(&window, Some((18, 18, 18, 125)));
-                
-                // Hack: force allow rounding
-                let hwnd = window.hwnd().unwrap();
-                let hwnd = HWND(hwnd.0 as _);
-
-                unsafe {
-                    let _ = DwmSetWindowAttribute(
-                        hwnd,
-                        DWMWA_WINDOW_CORNER_PREFERENCE,
-                        &DWMWCP_ROUND as *const _ as *const _,
-                        std::mem::size_of::<u32>() as u32,
-                    );
+                        unsafe {
+                            let _ = DwmSetWindowAttribute(
+                                hwnd,
+                                DWMWA_WINDOW_CORNER_PREFERENCE,
+                                &DWMWCP_ROUND as *const _ as *const _,
+                                std::mem::size_of::<u32>() as u32,
+                            );
+                        }
+                    }
                 }
-            }
 
-            #[cfg(target_os = "macos")]
-            {
-                use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
-                apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None)
-                    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+                #[cfg(target_os = "macos")]
+                {
+                    use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial};
+                    let _ = apply_vibrancy(&window, NSVisualEffectMaterial::HudWindow, None, None);
+                }
             }
 
             Ok(())

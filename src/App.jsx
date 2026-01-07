@@ -3,7 +3,6 @@ import TitleBar from './components/TitleBar';
 import Button from './components/Button';
 import Popup from './components/Popup';
 import colors from './theme/colors';
-import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 function App() {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -12,20 +11,19 @@ function App() {
     // Check if running in Tauri environment
     if (window.__TAURI_INTERNALS__) {
       const initTauri = async () => {
-        // Add a delay to show the splash screen
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
         try {
-          // Get the splash screen window
-          const splash = await WebviewWindow.getByLabel('splashscreen');
-          if (splash) {
-            await splash.close();
+          const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+          
+          // Try to close splash screen if it exists
+          try {
+            const splash = await WebviewWindow.getByLabel('splashscreen');
+            if (splash) {
+              await splash.close();
+            }
+          } catch (err) {
+            // Splash screen might not exist, that's ok
+            console.log('Splash screen not found or already closed');
           }
-
-          // Show the main window
-          const main = WebviewWindow.getCurrent();
-          await main.show();
-          await main.setFocus();
         } catch (error) {
           console.error('Failed to initialize Tauri window:', error);
         }

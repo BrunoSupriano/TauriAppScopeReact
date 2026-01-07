@@ -20,7 +20,7 @@
         "decorations": false,
         "transparent": true,
         "shadow": false,
-        "visible": false
+        "visible": true
       },
       {
         "width": 400,
